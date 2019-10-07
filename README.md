@@ -3,7 +3,7 @@ Data and scripts I've created for the _ _Open FP Group_ _ in Forest Park, IL
 
 Right now, I have a web scraping script to glean public property tax data for Forest Park from: http://cookcountypropertyinfo.com/default.aspx and save it to a json file.
 
-It is written in **Node.js** using Google's * *Puppeteer* *.
+It is written in **Node.js** using Google's /Puppeteer/.
 
 
 ### Features that I still want to add to this script:
