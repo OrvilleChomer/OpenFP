@@ -1,5 +1,5 @@
 # Scripts and Data for OpenFP Group
-Data and scripts I've created for the *Open FP Group* in Forest Park, IL
+This is data from scripts I've created (and the scripts themselves) for the *Open FP Group* in Forest Park, IL.
 
 Right now, I have a web scraping script to glean public property tax data for Forest Park from: http://cookcountypropertyinfo.com/default.aspx and save it to a json file.
 
