@@ -49,4 +49,4 @@ This file contains public property tax data for properties in Forest Park, IL.
 | propTxRt | numeric | Property Tax Rate |
 | propTxCd | string | Property Tax Code |
 
-
+Note: any object that ends up in the *pinData* property's array will always have a *searchStatus* value of **'pin found'**.
