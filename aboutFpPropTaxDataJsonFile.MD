@@ -38,8 +38,15 @@ This file contains public property tax data for properties in Forest Park, IL.
 | Object Property | Data Type | Description |
 | --- | --- | --- |
 | pin | string | Unique Identifier Cook County has for a property |
-| searchStatus | string | valid values: *'pin found'*, 'pin not found', and 'error' |
+| searchStatus | string | valid values: **'pin found'**, **'pin not found'**, and **'error'** |
 | address | string | The street address of the property |
 | taxYrInfoAssVal | numeric | Tax Year Assessed Value |
 | propAssVal | numeric | Property's Assessed Value |
 | propEstVal | numeric | Property's Estimated Value |
+| lotSz | numeric | Property's Lot Size in square feet |
+| bldingSz | numeric | Property's Building Size in square feet |
+| propCls | string | Property Class |
+| propTxRt | numeric | Property Tax Rate |
+| propTxCd | string | Property Tax Code |
+
+
