@@ -1,11 +1,21 @@
 const puppeteer = require('puppeteer');
-const Datastore = require('nedb');    // npm install nedb --save 
 const pins = [];
 const pinData = [];
 const wrongPinData = [];
-const express = require('express');   // npm install express
+const missingPinData = [];
+const errorPinData = [];
 const fs = require('fs');             // npm i fs
 
+
+/**********************************************************************************
+   - Open up Terminal
+   
+   - type:   cd /Applications/MAMP/htdocs/nodeProjects/fpProp
+   - type:   node index.js
+   
+   - wait for it to finish
+   -
+ **********************************************************************************/
 
 // =============================================================================
 // =============================================================================
@@ -13,38 +23,63 @@ const fs = require('fs');             // npm i fs
 setupPins();   // function is at bottom of this file
 
 // =============================================================================
+//Information could not be retrieved for the specified PIN or address.
 // =============================================================================
 
 
 puppeteer.launch({headless: false}).then(async browser => {
 	try {
+		const page = await browser.newPage();
 	    const startDate = new Date();
-	    
+	    const nMax = pins.length;
 	    
 	    // *** Collect Property Data for each PIN:
-	    for (let n=0;n<pins.length;n++) {
-	    	const pin = pins[n];
-	    	const pinInfo = await getPinInfo(browser, pin);
+	    for (let n=0;n<nMax;n++) {
+	    	const nPct = Math.floor((n / nMax) * 100);
+	    	console.log(" -         index: "+n+" of: "+nMax+"      "+nPct+"% complete");
 	    	
-	    	if (pinInfo.city === "FOREST PARK") {
-	    		pinData.push(pinInfo);
-	    	} else {
-	    		wrongPinData.push(pinInfo); // could be used for debugging...
+	    	const pin = pins[n];
+	    	const pinInfo = await getPinInfo(page, pin);
+	    	
+	    	if (pinInfo.searchStatus === "pin found") {
+				if (pinInfo.city === "FOREST PARK") {
+					delete pinInfo.city;
+					pinData.push(pinInfo);
+				} else {
+					console.log(" --->  a PIN for property outside of Forest Park...");
+					wrongPinData.push(pinInfo); // could be used for debugging...
+				} // end if 
 	    	} // end if
+	    	
+	    	if (pinInfo.searchStatus === "pin not found") {
+	    		missingPinData.push(pinInfo);
+	    		console.log("added to missingPinData array...");
+	    	} // end if
+	    	
+	    	if (pinInfo.searchStatus === "error") {
+	    		errorPinData.push(pinInfo);
+	    		console.log("added to errorPinData array...");
+	    	} // end if
+	    	
 	    } // next n
 	    
 	    const endDate = new Date();
 	    
 	    const dataSet = {};
 	    dataSet.dataSetTitle = "Cook County Property Tax Data For Forest Park, IL";
-	    dataSet.scriptVersion = "1.0.0";
+	    dataSet.scriptVersion = "1.0.1";
 	    dataSet.notes = [];
 	    dataSet.notes.push("Data created for the OpenFP group in Forest Park.");
 	    dataSet.notes.push("Data generated using script written in Node.js using Google Puppeteer.");
 	    dataSet.notes.push("Data is provided 'as is' and there is no guarantee of complete accuracy.");
 	    dataSet.notes.push("This data should only be used for non-comercial use.");
 	    dataSet.githubRepo = "https://github.com/OrvilleChomer/OpenFP";
+	    dataSet.githubFilePath = "https://github.com/OrvilleChomer/OpenFP/generatedDataFiles/fpPropTaxData.json";
+	    dataSet.githubRawFilePath = "https://raw.githubusercontent.com/OrvilleChomer/OpenFP/master/generatedDataFiles/fpPropTaxData.json";
 	    dataSet.pinData = pinData;
+	    dataSet.missingPins = missingPinData;
+	    dataSet.pinsWithErrors = errorPinData;
+	    dataSet.wrongPins = wrongPinData;
 	    dataSet.retrievalStartTimestamp = startDate;
 	    dataSet.retrievalEndTimestamp = endDate;
 
@@ -55,6 +90,7 @@ puppeteer.launch({headless: false}).then(async browser => {
 		
 		await browser.close();
 		
+		console.log(" ");
 		console.log("========");
 		console.log("FP Done");
 		console.log("========");
@@ -65,24 +101,31 @@ puppeteer.launch({headless: false}).then(async browser => {
 }); // end of puppeteer.launch().then() block
 
 
-/*
+
+
+
+/***************************************
    - to to search page
    - enter in a Property PIN
-   - get property tax information
+   - get property tax information       15-13-419-042-0000
    - return info in an object
- */
-async function getPinInfo(browser, pin) {
-	const page = await browser.newPage();
+ ***************************************/
+async function getPinInfo(page, pin) {
 	const pinInfo = {};
+	
+	if (pin.length === 4) {
+		pin.push("0000");
+	} // end if
+	
+	pinInfo.pin = pin[0]+"-"+pin[1]+"-"+pin[2]+"-"+pin[3]+"-"+pin[4];
+	pinInfo.searchStatus = "pin not found"; // default... assume failure
+	
 	console.log("Going to Cook County Search Page");
 	await page.goto('http://cookcountypropertyinfo.com/default.aspx');
 
 	await page.waitForSelector('.menuBarGroup');
 	console.log("Search page has come up");
 	
-	if (pin.length === 4) {
-		pin.push("0000");
-	} // end if
 	
 	// ref text boxes to type in PIN in...
 	const pin1 = await page.$('#pinBox1');
@@ -92,23 +135,18 @@ async function getPinInfo(browser, pin) {
 	const pin5 = await page.$('#pinBox5');
 		
 	pin1.focus(); // click on first text box (should give us focus)
-	//await page.mouse.up();
 	await page.keyboard.type(pin[0]);
 
 	pin2.focus(); 
-	//await page.mouse.up();
 	await page.keyboard.type(pin[1]);
 
 	pin3.focus(); 
-	//await page.mouse.up();
 	await page.keyboard.type(pin[2]);
 
 	pin4.focus(); 
-	//await page.mouse.up();
 	await page.keyboard.type(pin[3]);
 
 	pin5.focus(); 
-	//await page.mouse.up();
 	await page.keyboard.type(pin[4]);
 	console.log("Finished Typing in the PIN");
 	
@@ -116,31 +154,48 @@ async function getPinInfo(browser, pin) {
 	btnSearch.click();
 	console.log("Clicked 'Search' button...");
 	
-	await page.waitForSelector('#ContentPlaceHolder1_PropertyInfo_propertyAddress'); 
+	//
+	try {
+		await page.waitForSelector('#ContentPlaceHolder1_PropertyInfo_propertyAddress',{timeout:3000}); // give up to 3 seconds
+	} catch(err1) {
+		try {
+			await page.waitForSelector('#ContentPlaceHolder1_failure',{timeout:100}); 
+			console.log("----> could not find PIN specified");
+			return pinInfo;			
+		} catch(err2) {
+			pinInfo.searchStatus = "error";
+			pinInfo.errInfo = "waiting for Selector: #ContentPlaceHolder1_failure";
+			pinInfo.errMsg = err2.message;
+			pinInfo.errName = err2.name;
+			console.log("----> an error occurred while searching for PIN");
+			return pinInfo;			
+		} // end try/catch(err2)
+	} // end of try/catch(err1)
+	
 	console.log("Search Results Page has come up");
 	
-	pinInfo.pin = pin[0]+"-"+pin[1]+"-"+pin[2]+"-"+pin[3]+"-"+pin[4];
+	
 	const flds = [];
 	
-	pinInfo.retrievedAt = new Date();
-	// PROPERTY ADDRESS:
-	pinInfo.address = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyAddress', el => el.innerText);
-	pinInfo.city = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyCity', el => el.innerText);
-	pinInfo.zip = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyZip', el => el.innerText);
-	pinInfo.township = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyTownship', el => el.innerText);
+//	pinInfo.retrievedAt = new Date();
 
-    // PROPERTY CHARACTERISTICS:
-	pinInfo.taxYrInfoAssessedValue = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_lblTaxYearInfoAssessedValue', el => el.innerText));
-	pinInfo.propAssessedValue = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyAssessedValue', el => el.innerText));
-	pinInfo.propEstimatedValue = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyEstimatedValue', el => el.innerText));
+	try {
+		// PROPERTY ADDRESS:
+		pinInfo.address = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyAddress', el => el.innerText);
+		pinInfo.city = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyCity', el => el.innerText);
+	//	pinInfo.zip = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyZip', el => el.innerText);
+	//	pinInfo.township = await page.$eval('#ContentPlaceHolder1_PropertyInfo_propertyTownship', el => el.innerText);
+
+		// PROPERTY CHARACTERISTICS:
+		pinInfo.taxYrInfoAssVal = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_lblTaxYearInfoAssessedValue', el => el.innerText));
+		pinInfo.propAssVal = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyAssessedValue', el => el.innerText));
+		pinInfo.propEstVal = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyEstimatedValue', el => el.innerText));
 	
-	pinInfo.lotSize = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyLotSize', el => el.innerText));
-	pinInfo.bldingSize = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyBuildingSize', el => el.innerText));
-	pinInfo.propClass = await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyClass', el => el.innerText);
-	pinInfo.propTaxRate = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyTaxRate', el => el.innerText));
-	pinInfo.propTaxCode = await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyTaxCode', el => el.innerText);
-
-
+		pinInfo.lotSz = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyLotSize', el => el.innerText));
+		pinInfo.bldingSz = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyBuildingSize', el => el.innerText));
+		pinInfo.propCls = await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyClass', el => el.innerText);
+		pinInfo.propTxRt = pureNum(await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyTaxRate', el => el.innerText));
+		pinInfo.propTxCd = await page.$eval('#ContentPlaceHolder1_TaxYearInfo_propertyTaxCode', el => el.innerText);
 		
 		//assessdhistorytable  - contains table markup  @@@@@@@
 
@@ -154,11 +209,32 @@ async function getPinInfo(browser, pin) {
 		//ContentPlaceHolder1_TaxBillInfo_rptTaxBill_taxBillAmount_0
 		// should be 0 through 4
 		
+		console.log("Done collecting info for PIN: ",pinInfo.pin);
+		pinInfo.searchStatus = "pin found";
+	} catch(err) {
+		pinInfo.searchStatus = "error";
+		pinInfo.errMsg = err2.message;
+		pinInfo.errName = err2.name;
+		console.log("----> an error occurred while scraping pagefor PIN: ",pinInfo.pin);
+	} // end of try/catch
+	
 		
-	console.log("Done collecting info for PIN: ",pinInfo.pin);
+		
+	
 	
 	return pinInfo;
 } // end of function getPinInfo()
+
+
+/*
+function getDocumentsDeedsAndLiensInfo(page) {
+	const docsDeedsLiens = [];
+	const recDocSpaces = await page.$('.recorddocspace');
+	
+	return docsDeedsLiens;
+} // end of function getDocumentsDeedsAndLiensInfo()
+*/
+
 
 
 
