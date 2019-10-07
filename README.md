@@ -8,7 +8,7 @@ You can find the latest copy of the json file: [here](https://github.com/Orville
 It is written in **Node.js** using Google's *Puppeteer*.
 
 
-### Features that I still want to add to this script:
+### Features that I still want to add to this script to collect some historical information:
 
 - Collect yearly tax billed amounts & tax history
 - Collect yearly exemption information (seems to be just if there is an exemption or not)
