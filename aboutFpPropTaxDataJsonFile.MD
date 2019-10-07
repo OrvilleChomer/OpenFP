@@ -24,15 +24,15 @@ This file contains public property tax data for properties in Forest Park, IL.
 {
    pin: "15-24-403-027-0000",
    searchStatus: "pin found",
-   address: "",
+   address: "440 DES PLAINES AVE",
    taxYrInfoAssVal: 12345,
    propAssVal: 12345,
    propEstVal: 12345,
    lotSz: 1000,
    bldingSz: 800,
-   propCls: "",
+   propCls: "3-15",
    propTxRt: 12345,
-   propTxCd: ""
+   propTxCd: "31038"
 }
 ```
 | Object Property | Data Type | Description |
