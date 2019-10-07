@@ -1,1 +1,2 @@
-#About fpPropTaxData.json File
+# About fpPropTaxData.json File
+Contains public property tax data for properties in Forest Park, IL.
