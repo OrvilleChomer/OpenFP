@@ -5,7 +5,7 @@ Right now, I have a web scraping script to glean public property tax data for Fo
 
 It is written in Node.js using Google's Puppeteer.
 
-###Features that I want to add to this script:
+### Features that I want to add to this script:
 
 - Collect yearly tax billed amounts & tax history
 - Collect yearly exemption information (seems to be just if there is an exemption or not)
