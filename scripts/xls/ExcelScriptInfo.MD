@@ -10,3 +10,65 @@ The idea is, that when this script is done running, and has created the *fppoint
 I decided to paste it at the *end* due to the large content size of the *fppoint.js* file so I would not have to scroll-scroll-scroll to get to the actual code that did the web/screen scraping!
 
 *(Actual VBA Code extracted out of the Excel Workbook)*
+```
+Public Sub genList()
+    On Error GoTo TrapError
+    
+    Dim Q
+    Dim sSearch
+    Dim sLine
+    Dim nPos
+    Dim sVal
+    Dim sOut
+    
+    ChDir "Main Hard Drive:Users:orvillechomer:Downloads"
+    Open "Address_Points.kml" For Input As #1
+    Open "fppoints.js" For Output As #2
+    
+    Q = Chr$(34)
+    sSearch = "name=" & Q & "PIN" & Q
+    
+    Print #2, "function setupPins() {"
+    
+    While Not EOF(1)
+        Line Input #1, sLine
+        
+        If InStr(sLine, sSearch) > 0 Then
+            nPos = InStr(sLine, ">")
+            sVal = Mid$(sLine, nPos + 1)
+            nPos = InStr(sVal, "<")
+            
+            If nPos > 1 Then
+                sVal = Mid$(sVal, 1, nPos - 1)
+                sOut = "    pins.push(['" & Mid$(sVal, 1, 2) & "','" & Mid$(sVal, 3, 2) & "','" & Mid$(sVal, 5, 3) & "','" & Mid$(sVal, 8, 3)
+                
+                If Mid$(sVal, 11, 4) <> "0000" Then
+                    sOut = sOut & "','" & Mid$(sVal, 11, 4)
+                End If
+                
+                sOut = sOut & "']);"
+                Print #2, sOut
+                
+            End If
+            
+            
+        End If
+        
+    Wend
+    
+    Print #2, "} // end if"
+    
+    
+    Close #1
+    Close #2
+    MsgBox ("Done")
+    
+    Exit Sub
+    
+TrapError:
+    MsgBox Err.Description
+    Stop
+    Resume
+    
+End Sub
+```
