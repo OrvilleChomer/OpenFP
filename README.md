@@ -15,7 +15,7 @@ I manually went to [this page](https://hub-cookcountyil.opendata.arcgis.com/data
 - A new button that is labeled **Zip Code** will appear above the report. click that button.
 - A dropdown containing a text box will appear underneath this button. For *Forest Park* enter **60130** and press the *return* key.
 - You will wait a few moments and the grid will refresh with Forest Park items only.
-- The dataset will now show a total count of approx: 3,380 rows.
+- The dataset will now show a total count of approx: 3,380 rows.  Much smaller!
 - On the right side of the report is a *Download* button.  Click it.
 - A dropdown will appear. One of the options is: **KML**   Pick that option.
 - You may be prompted if you want to download the data. If you are, click the *Allow* button.
