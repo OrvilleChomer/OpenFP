@@ -56,7 +56,7 @@ Public Sub genList()
         
     Wend
     
-    Print #2, "} // end if"
+    Print #2, "} // end of function"
     
     
     Close #1
