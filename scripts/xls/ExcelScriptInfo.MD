@@ -3,6 +3,10 @@
 
 This script takes an **Address_Points.kml** file (which I downloaded from Cook County web site) and uses it to generate a file (*fppoints.js*) containing JavaScript code for all the Property PIN numbers in Forest Park.
 
+### Why did I Pick VBA?
+There are plenty of ways that I'm sure I could have picked to read through this KML file, including Node.js. But a lot of these platforms are relatively new to me and I knew how to use Visual Basic read through a text file and parse it extremely well. And I wanted to get this working as quickly as possible.
+
+### About the Script:
 The input file is in an XML file format. Since I didn't know offhand what object library to use to read the XML *as* XML (being impatient), I just did a quick and dirty bit of code to open the input file as a text file, read in each line, search for a tag attribue of "PIN", and get its value. I then output a line for each PIN it finds to a line of JavaScript to push the PIN value to a JavaScript array. All these lines are wrapped in a JS function declaration for the function: **setupPins()**.
 
 The idea is, that when this script is done running, and has created the *fppoint.js* file, I could open it up in a text editor, Select All, copy it to the Clipboard, then open up **index.js** in a text editor and Paste it at the end.
@@ -72,3 +76,4 @@ TrapError:
     
 End Sub
 ```
+Note the **ChDir** line above's path. It looks like this because I was running this script on a Mac and not a PC.
