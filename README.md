@@ -22,6 +22,32 @@ I manually went to [this page](https://hub-cookcountyil.opendata.arcgis.com/data
 - The data file will download.
 - Copy the file to the destination where a script is expecting to use it.
 
+BTW the columns of data in this result are as follows:
+- ObjectId
+- Complete Address Number
+- Street Name Pre Directional
+- Street Name
+- Street Name Post Type
+- Street Name Post Directional
+- Complete Street Name
+- Place Name
+- USPS Place Name
+- USPS Place Name GNIS Code
+- State Name
+- Zip Code
+- Zip Plus 4 *(this looks to be blank)*
+- Municipal GNIS Code
+- Township GNIS Code
+- Country GNIS Code
+- Delivery Address
+- Complete Address Abbreviated
+- Place State Zip
+- Address X Coordinate
+- Address Y Coordinate
+- Longitude
+- Latitude
+- US National Grid Coordinate
+- Address Parcel Identifier (the PIN)
 ### Features that I still want to add to this script to collect some historical information:
 
 - Collect yearly tax billed amounts & tax history
