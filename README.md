@@ -15,4 +15,4 @@ It is written in **Node.js** using Google's *Puppeteer*.
 - Collect yearly appeals information (seems to be just if there were appeals or not)
 - Collect documents, deeds & liens information
 - Output this data into a mySQL database file.
-- Output this data into an NeDb database file.
+- Output this data into an NeDb (subset of Mongo Db) database file.
